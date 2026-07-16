@@ -15,7 +15,10 @@ There is no terminal here, so do not shell out to the `bauplan` CLI. Use the MCP
 
 ## 2. Create the issue
 
-Create it with Jira MCP. There is a field named `Automate with AI`(customfield_10106 = "Automate with AI") which is a checkbox and that you need to put to `Yes`. This will ensure that the issue will be handled by an AI agent. The issue status should be `In Progress`
+Create it with Jira MCP. There is field named `Automate with AI`(customfield_10106 = "Automate with AI") which is a checkbox and that you need to put to `Yes`. This will ensure that the issue will be handled by an AI agent. The issue status should be `In Progress`. 
+
+IMPORTANT: there is a Jira automation that triggers a GitHub issue creation when the issue is created and flagged with `Automate with AI` = `Yes`. 
+In order for this to work, you need to create the complete issue in one go, and not through updates.
 
 Title: a concise description of the question.
 
