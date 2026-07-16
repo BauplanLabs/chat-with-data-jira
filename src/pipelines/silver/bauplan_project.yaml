@@ -1,0 +1,5 @@
+project:
+  id: 27a9e424-4399-4b81-b56e-328e1401fb52
+  name: silver_pipeline
+defaults:
+  namespace: silver
