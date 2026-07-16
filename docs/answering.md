@@ -24,7 +24,7 @@ There are three distinct cases, and they have different responses.
 
 **The data can answer it and a table contains the answer.** The question is answerable by simply querying an existing table without further operations such as joins. Answer the question with a query using Bauplan's MCP server and return the result.
 
-**The data could answer it, but no table does yet.** The question is answerable. The table just does not exist. Follow the build path in [workflow.md](workflow.md): answer the question with a query now using Bauplan's MCP server, return the result, and file a Linear issue so it gets reimplemented as a reviewed pipeline. The executive still gets their answer.
+**The data could answer it, but no table does yet.** The question is answerable. The table just does not exist. Follow the build path in [workflow.md](workflow.md): answer the question with a query now using Bauplan's MCP server, return the result, and file a Jira issue so it gets reimplemented as a reviewed pipeline. The executive still gets their answer.
 
 **The data cannot answer it.** The question asks for something the dataset does not contain or cannot mean. Check it against [semantics.md](semantics.md). Say so plainly, in one sentence, and if possible point to the nearby question the data can answer instead. Do not stretch the data to fake a result.
 

@@ -12,6 +12,9 @@ Every question resolves to one of two cases.
 
 **The answer does not exist yet.** No existing table answers the question. This does not mean the question is unanswerable: the data may be one query away. The agent answers it now with a query, and files a Jira issue recording that query so it can be reimplemented as a reviewed pipeline and the table made permanent.
 
+**NOTE WELL 1**: in path 2, you ALWAYS create the Jira issue, you _do not_ ask the user for confirmation. 
+**NOTE WELL 2**: in path 2, you ALWAYS create a brand new Jira issue, you _never_ update an existing one, even if they look similar or identical. 
+
 The goal of the second path is consistency. If two executives ask the same question a month apart, they should get the same answer computed the same way. Promoting a validated pipeline to a reviewed table is how a one-off answer becomes a standard one.
 
 ## Deciding which path
