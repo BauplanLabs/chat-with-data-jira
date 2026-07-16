@@ -1,8 +1,6 @@
 name: Claude Code
 
-# Triggered when a GitHub issue is opened. The chat assistant files a Linear issue
-# in one shot (see docs/linear.md); Linear syncs it into a GitHub issue, and that
-# creation event kicks off this workflow.
+# Triggered when a GitHub issue is opened.
 on:
   issues:
     types: [opened, reopened]
@@ -18,9 +16,11 @@ concurrency:
 jobs:
   claude:
     name: Implement pipeline from issue
-    # This repo only receives issues from the Linear sync, so every issue
-    # with a body is a pipeline request.
-    if: github.event.issue.body != ''
+    # Only issues synced from Jira carry the `ai-jira` label; everything else
+    # (manually opened issues, bug reports) is ignored.
+    if: >-
+      github.event.issue.body != '' &&
+      contains(github.event.issue.labels.*.name, 'ai-jira')
     runs-on: ubuntu-latest
     permissions:
       contents: write # create branches and push commits
@@ -35,14 +35,22 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # Derive the working branch from the issue number. It is unique and known at
-      # creation time, so we do not depend on any field inside the issue body.
-      - name: Derive branch from issue number
+      # The Jira automation titles the issue as "<JIRA-KEY>: <summary>", so the
+      # Jira key is the stable identifier for this piece of work. Derive the
+      # working branch from it; fail loudly if the title does not carry a key,
+      # because that means the Jira->GitHub payload is broken.
+      - name: Derive branch from Jira key in title
         id: issue-branch
         env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
-          BRANCH="bauplan/issue-${ISSUE_NUMBER}"
+          if [[ "$ISSUE_TITLE" =~ ^([A-Z][A-Z0-9]+-[0-9]+) ]]; then
+            JIRA_KEY="${BASH_REMATCH[1]}"
+          else
+            echo "::error::Issue title does not start with a Jira key (expected 'KEY-123: ...'): $ISSUE_TITLE"
+            exit 1
+          fi
+          BRANCH="bauplan/${JIRA_KEY}"
           echo "Working branch: $BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
@@ -68,7 +76,6 @@ jobs:
           BAUPLAN_API_KEY: ${{ secrets.BAUPLAN_API_KEY }} # zizmor: ignore[secrets-outside-env]
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }} # zizmor: ignore[secrets-outside-env]
-          allowed_bots: "linear[bot]"
           branch_prefix: ${{ steps.issue-branch.outputs.branch }}
           branch_name_template: "{{prefix}}"
           plugin_marketplaces: "https://github.com/BauplanLabs/bauplan-skills.git"
@@ -79,7 +86,7 @@ jobs:
             A new data pipeline has been requested through the GitHub issue below.
             Implement it on the current branch.
 
-            First read the repository conventions: CLAUDE.md, docs/linear.md,
+            First read the repository conventions: CLAUDE.md, docs/jira.md,
             docs/lakehouse.md, docs/semantics.md. Then reimplement the request as a
             proper medallion pipeline following those rules: silver and gold models
             written in Python with Polars (never pandas), the gold model with
