@@ -87,23 +87,29 @@ jobs:
             Implement it on the current branch.
 
             First read the repository conventions: CLAUDE.md, docs/jira.md,
-            docs/lakehouse.md, docs/semantics.md. Then reimplement the request as a
-            proper medallion pipeline following those rules: silver and gold models
-            written in Python with Polars (never pandas), the gold model with
-            materialization_strategy='REPLACE', expectations added, validated with
-            `uv run bauplan run --dry-run --strict`. Never run on main; use a Bauplan
-            data branch prefixed with your username.
+            docs/lakehouse.md, docs/semantics.md, docs/pr-description.md. Then
+            reimplement the request as a proper medallion pipeline following those
+            rules: silver and gold models written in Python with Polars (never
+            pandas), the gold model with materialization_strategy='REPLACE',
+            expectations added. Iterate with `uv run bauplan run --dry-run --strict on`,
+            then materialize with a real `uv run bauplan run --strict on` on your own
+            Bauplan data branch, prefixed with your username, never on main. Leave
+            that branch in place: it is the review artifact.
 
             Do not commit; the workflow commits and pushes your changes for you.
 
             When you are done, return the structured output with these fields,
-            which are used to build the pull request description:
-            - summary: what you implemented (pipeline name, what it does, tables in and out)
+            which become the pull request description a data engineer reviews.
+            Build each one as described in docs/pr-description.md, deriving the
+            facts from Bauplan introspection (branch diff, table metadata, job
+            status), never from memory:
+            - summary: what the pipeline computes, tables in and tables out
             - status: COMPLETED, PARTIAL, or FAILED
-            - changes: files created or modified, one entry per file
-            - problems: errors or blockers, or "None"
-            - tradeoffs: design tradeoffs, or "None"
-            - verification: what you verified and how
+            - lineage: source tables named in prose, then a mermaid flowchart of source -> silver -> gold with outputs highlighted
+            - testing: whether expectations ran strict and passed, what each covers in plain words, plus any check queries and their outcome
+            - metrics: markdown table of every table the merge publishes with rows, columns, size, plus null counts for key gold columns
+            - info: the Bauplan branch you materialized on and the exact commands a reviewer runs to verify
+            - problems: errors, blockers, or deviations from the issue, or "None"
 
             --- ISSUE #${{ github.event.issue.number }}: ${{ github.event.issue.title }} ---
 
@@ -111,7 +117,7 @@ jobs:
           claude_args: |
             --allowedTools "Bash(uv *),Bash(bauplan *),WebFetch,Read,Write,Edit,Grep,Glob"
             --model claude-sonnet-4-6
-            --json-schema '{"type":"object","properties":{"summary":{"type":"string"},"status":{"type":"string","enum":["COMPLETED","PARTIAL","FAILED"]},"changes":{"type":"array","items":{"type":"string"}},"problems":{"type":"string"},"tradeoffs":{"type":"string"},"verification":{"type":"string"}},"required":["summary","status","changes","problems","tradeoffs","verification"]}'
+            --json-schema '{"type":"object","properties":{"summary":{"type":"string"},"status":{"type":"string","enum":["COMPLETED","PARTIAL","FAILED"]},"lineage":{"type":"string"},"testing":{"type":"string"},"metrics":{"type":"string"},"info":{"type":"string"},"problems":{"type":"string"}},"required":["summary","status","lineage","testing","metrics","info","problems"]}'
 
       - name: Build PR body from structured output
         env:
@@ -126,20 +132,22 @@ jobs:
               echo "## Summary"
               printf '%s' "$STRUCTURED" | jq -r '.summary'
               echo
-              echo "## Status"
-              printf '%s' "$STRUCTURED" | jq -r '.status'
+              echo "**Status:** $(printf '%s' "$STRUCTURED" | jq -r '.status')"
               echo
-              echo "## Changes"
-              printf '%s' "$STRUCTURED" | jq -r '.changes[]'
+              echo "## Lineage"
+              printf '%s' "$STRUCTURED" | jq -r '.lineage'
+              echo
+              echo "## Testing"
+              printf '%s' "$STRUCTURED" | jq -r '.testing'
+              echo
+              echo "## Metrics"
+              printf '%s' "$STRUCTURED" | jq -r '.metrics'
+              echo
+              echo "## Info"
+              printf '%s' "$STRUCTURED" | jq -r '.info'
               echo
               echo "## Problems"
               printf '%s' "$STRUCTURED" | jq -r '.problems'
-              echo
-              echo "## Tradeoffs"
-              printf '%s' "$STRUCTURED" | jq -r '.tradeoffs'
-              echo
-              echo "## Verification"
-              printf '%s' "$STRUCTURED" | jq -r '.verification'
             } > /tmp/pr_body.md
           fi
 
