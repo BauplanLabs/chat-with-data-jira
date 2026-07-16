@@ -15,7 +15,7 @@ There is no terminal here, so do not shell out to the `bauplan` CLI. Use the MCP
 
 ## 2. Create the issue
 
-Create it with Jira MCP. There is a field named `Automate with AI` which is a checkbox and that you need to put to `Yes`. This will ensure that the issue will be handled by an AI agent. 
+Create it with Jira MCP. There is a field named `Automate with AI`(customfield_10106 = "Automate with AI") which is a checkbox and that you need to put to `Yes`. This will ensure that the issue will be handled by an AI agent. The issue status should be `In Progress`
 
 Title: a concise description of the question.
 
