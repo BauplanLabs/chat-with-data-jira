@@ -1,0 +1,5 @@
+project:
+  id: 73c5ee28-3e5d-46a3-b2f6-05edb42fd87a
+  name: gold_pipeline
+defaults:
+  namespace: gold
