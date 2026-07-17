@@ -1,0 +1,6 @@
+# This file is intentionally left as a placeholder.
+# The actual pipeline projects are in silver/ and gold/ subdirectories.
+# Do not run bauplan from this directory.
+project:
+  id: dc1abbde-27d7-4e37-9957-04408c99d17e
+  name: chat-with-data-jira
