@@ -1,0 +1,8 @@
+project:
+  id: cac25fda-91ab-4852-ba11-e6c06121daad
+  name: pipelines
+
+defaults:
+  python:
+    version: "3.12"
+  namespace: bauplan
