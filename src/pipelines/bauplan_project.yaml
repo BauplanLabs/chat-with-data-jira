@@ -1,0 +1,6 @@
+project:
+  id: 277d927c-75f9-45de-9580-c65f46125b4c
+  name: revenue_by_customer_region
+
+defaults:
+  namespace: tpch_medallion
