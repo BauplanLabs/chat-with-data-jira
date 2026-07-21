@@ -1,0 +1,8 @@
+project:
+  id: f6a7b8c9-d0e1-2345-fabc-d23456789014
+  name: gold
+
+defaults:
+  python:
+    version: "3.12"
+  namespace: gold
