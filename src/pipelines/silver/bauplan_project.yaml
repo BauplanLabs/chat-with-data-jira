@@ -1,0 +1,8 @@
+project:
+  id: e5f6a7b8-c9d0-1234-efab-c12345678903
+  name: silver
+
+defaults:
+  python:
+    version: "3.12"
+  namespace: silver
